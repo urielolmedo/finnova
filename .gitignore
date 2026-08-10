@@ -1,0 +1,11 @@
+# Backend (Java/Maven)
+finnova-backend/target/
+finnova-backend/.idea/
+finnova-backend/*.iml
+
+# Frontend (Node)
+finnova-frontend/node_modules/
+finnova-frontend/dist/
+
+# General
+.DS_Store
