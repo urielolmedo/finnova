@@ -1,20 +1,26 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import RutaProtegida from './components/RutaProtegida';
+import Login from './pages/Login';
+import Registro from './pages/Registro';
+import RecuperarPassword from './pages/RecuperarPassword';
+import ResetearPassword from './pages/ResetearPassword';
+import Perfil from './pages/Perfil';
 
 function App() {
-  const [mensaje, setMensaje] = useState('Conectando...');
-
-  useEffect(() => {
-    axios.get('http://localhost:8080/api/ping')
-      .then(res => setMensaje(res.data))
-      .catch(() => setMensaje('Error de conexión con el backend'));
-  }, []);
-
   return (
-    <div>
-      <h1>FinNova</h1>
-      <p>Respuesta del backend: {mensaje}</p>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+          <Route path="/recuperar-password" element={<RecuperarPassword />} />
+          <Route path="/resetear-password" element={<ResetearPassword />} />
+          <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
