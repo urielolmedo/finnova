@@ -9,3 +9,5 @@ finnova-frontend/dist/
 
 # General
 .DS_Store
+
+finnova-backend/src/main/resources/application.properties
