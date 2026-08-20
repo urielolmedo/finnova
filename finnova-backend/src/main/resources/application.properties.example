@@ -3,7 +3,7 @@ spring.application.name=finnova-backend
 # Conexion a PostgreSQL
 spring.datasource.url=jdbc:postgresql://localhost:5432/finnova_db
 spring.datasource.username=postgres
-spring.datasource.password=0819a6d7d204.Mr
+spring.datasource.password=TU_PASSWORD_AQUI
 
 # JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update
@@ -20,10 +20,9 @@ jwt.expiration=86400000
 # Envio de mail (Gmail SMTP)
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=olmedo.uriel01@gmail.com
-spring.mail.password=ctsiuhaghdjvifhr
+spring.mail.username=TU_EMAIL_AQUI@gmail.com
+spring.mail.password=TU_APP_PASSWORD_AQUI
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
-# URL del frontend, para armar el link del mail
 app.frontend.url=http://localhost:5173
