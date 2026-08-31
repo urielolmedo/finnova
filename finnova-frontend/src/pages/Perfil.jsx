@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const MODULOS_DISPONIBLES = [
   { id: 'reportes', label: 'Reportes y Resúmenes' },
@@ -54,7 +55,7 @@ export default function Perfil() {
       <h1>FinNova</h1>
       <p>Hola, {usuario?.nombre} ({usuario?.email})</p>
       <button onClick={logout}>Cerrar sesión</button>
-
+      <p><Link to="/transacciones">Ver mis transacciones</Link></p>
       <h2 style={{ marginTop: 32 }}>Editar perfil</h2>
       <form onSubmit={guardarPerfil}>
         <div style={{ marginBottom: 12 }}>
