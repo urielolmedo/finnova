@@ -154,7 +154,17 @@ export default function Transacciones() {
                 <td style={{ padding: 8 }}>{t.categoriaNombre}</td>
                 <td style={{ padding: 8 }}>{t.descripcion}</td>
                 <td style={{ padding: 8 }}>${t.monto.toFixed(2)}</td>
-                <td style={{ padding: 8 }}>{t.tieneComprobante ? '📎' : '—'}</td>
+                <td style={{ padding: 8 }}>
+                  {t.tieneComprobante ? (
+                    <a
+                      href={`http://localhost:8080/uploads/comprobantes/${t.comprobanteUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      📎 Ver
+                    </a>
+                  ) : '—'}
+                </td>
                 <td style={{ padding: 8 }}>
                   <button onClick={() => editar(t)}>Editar</button>{' '}
                   <button onClick={() => eliminar(t.id)}>Eliminar</button>

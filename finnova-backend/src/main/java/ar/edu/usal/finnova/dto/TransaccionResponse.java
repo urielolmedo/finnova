@@ -18,6 +18,7 @@ public class TransaccionResponse {
     private final String categoriaNombre;
     private final String descripcion;
     private final boolean tieneComprobante;
+    private final String comprobanteUrl;
     private final boolean esRecurrente;
     private final FrecuenciaRecurrencia frecuencia;
     private final LocalDate fechaFinRecurrencia;
@@ -31,6 +32,7 @@ public class TransaccionResponse {
         this.categoriaNombre = t.getCategoria().getNombre();
         this.descripcion = t.getDescripcion();
         this.tieneComprobante = t.getComprobanteUrl() != null;
+         this.comprobanteUrl = t.getComprobanteUrl();
         this.esRecurrente = t.isEsRecurrente();
         this.frecuencia = t.getFrecuencia();
         this.fechaFinRecurrencia = t.getFechaFinRecurrencia();
