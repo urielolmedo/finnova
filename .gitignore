@@ -11,3 +11,9 @@ finnova-frontend/dist/
 .DS_Store
 
 finnova-backend/src/main/resources/application.properties
+
+# Uploads de usuarios (comprobantes) - no se versionan
+finnova-backend/uploads/
+
+# Configuracion local de VS Code
+.vscode/
