@@ -8,6 +8,7 @@ import ResetearPassword from './pages/ResetearPassword';
 import Perfil from './pages/Perfil';
 import Transacciones from './pages/Transacciones';
 import Categorias from './pages/Categorias';
+import DatosImportExport from './pages/DatosImportExport';
 
 function App() {
   return (
@@ -20,8 +21,9 @@ function App() {
           <Route path="/resetear-password" element={<ResetearPassword />} />
           <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
           <Route path="/transacciones" element={<RutaProtegida><Transacciones /></RutaProtegida>} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/categorias" element={<RutaProtegida><Categorias /></RutaProtegida>} />
+          <Route path="/datos" element={<RutaProtegida><DatosImportExport /></RutaProtegida>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
