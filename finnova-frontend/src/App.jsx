@@ -7,6 +7,7 @@ import RecuperarPassword from './pages/RecuperarPassword';
 import ResetearPassword from './pages/ResetearPassword';
 import Perfil from './pages/Perfil';
 import Transacciones from './pages/Transacciones';
+import Categorias from './pages/Categorias';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
           <Route path="/transacciones" element={<RutaProtegida><Transacciones /></RutaProtegida>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/categorias" element={<RutaProtegida><Categorias /></RutaProtegida>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

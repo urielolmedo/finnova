@@ -10,11 +10,13 @@ public class CategoriaResponse {
     private final String nombre;
     private final TipoCategoria tipo;
     private final boolean predefinida;
+    private final String color;
 
     public CategoriaResponse(Categoria c) {
         this.id = c.getId();
         this.nombre = c.getNombre();
         this.tipo = c.getTipo();
         this.predefinida = c.isPredefinida();
+        this.color = c.getColor();
     }
 }

@@ -25,12 +25,13 @@ public class Categoria {
     @Column(nullable = false)
     private TipoCategoria tipo;
 
-    // true = predefinida por el sistema, false = creada por un usuario (Modulo 3, Sprint 3)
     @Column(nullable = false)
     private boolean predefinida = true;
 
-    // null si es predefinida; si en el futuro un usuario crea la suya propia, se asocia aca
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @Column(nullable = false)
+    private String color = "#6c757d";
 }

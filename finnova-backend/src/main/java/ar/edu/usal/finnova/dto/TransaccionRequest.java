@@ -17,8 +17,9 @@ public class TransaccionRequest {
     private Long categoriaId;
     private String descripcion;
 
-    // CU-015: recurrencia (opcionales, solo si esRecurrente = true)
+    // CU-015: recurrencia. El usuario elige UNO de los dos modos:
     private boolean esRecurrente = false;
     private FrecuenciaRecurrencia frecuencia;
-    private LocalDate fechaFinRecurrencia;
+    private Integer cantidadRepeticiones;      // modo 1: "repetir N veces"
+    private LocalDate fechaFinRecurrencia;     // modo 2: "repetir hasta tal fecha"
 }

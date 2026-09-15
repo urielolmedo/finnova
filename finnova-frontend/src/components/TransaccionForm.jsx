@@ -12,7 +12,9 @@ export default function TransaccionForm({ categorias, transaccion, onGuardado, o
     descripcion: transaccion?.descripcion || '',
     esRecurrente: transaccion?.esRecurrente || false,
     frecuencia: transaccion?.frecuencia || 'MENSUAL',
-    fechaFinRecurrencia: transaccion?.fechaFinRecurrencia || '',
+    modoRecurrencia: 'cantidad', // 'cantidad' o 'fecha'
+    cantidadRepeticiones: 2,
+    fechaFinRecurrencia: '',
   });
   const [archivo, setArchivo] = useState(null);
   const [error, setError] = useState('');
@@ -40,7 +42,10 @@ export default function TransaccionForm({ categorias, transaccion, onGuardado, o
         descripcion: form.descripcion,
         esRecurrente: form.esRecurrente,
         frecuencia: form.esRecurrente ? form.frecuencia : null,
-        fechaFinRecurrencia: form.esRecurrente ? form.fechaFinRecurrencia : null,
+        cantidadRepeticiones: (form.esRecurrente && form.modoRecurrencia === 'cantidad')
+          ? parseInt(form.cantidadRepeticiones) : null,
+        fechaFinRecurrencia: (form.esRecurrente && form.modoRecurrencia === 'fecha')
+          ? form.fechaFinRecurrencia : null,
       };
 
       let idTransaccion;
@@ -70,8 +75,18 @@ export default function TransaccionForm({ categorias, transaccion, onGuardado, o
   };
 
   return (
-    <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-      <h3>{esEdicion ? 'Editar transacción' : 'Nueva transacción'}</h3>
+    <div style={{
+      border: esEdicion ? '2px solid #ff9800' : '1px solid #ccc',
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 16,
+      background: esEdicion ? '#fff8e1' : 'white',
+    }}>
+      <h3>
+        {esEdicion
+          ? `✏️ Editando: ${transaccion.descripcion || transaccion.categoriaNombre} — ${transaccion.fecha}`
+          : 'Nueva transacción'}
+      </h3>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 8 }}>
           <label>Tipo: </label>
@@ -116,21 +131,78 @@ export default function TransaccionForm({ categorias, transaccion, onGuardado, o
         )}
 
         {!esEdicion && form.esRecurrente && (
-          <div style={{ marginBottom: 8, paddingLeft: 20 }}>
-            <label>Frecuencia: </label>
-            <select name="frecuencia" value={form.frecuencia} onChange={handleChange}>
-              <option value="DIARIA">Diaria</option>
-              <option value="SEMANAL">Semanal</option>
-              <option value="MENSUAL">Mensual</option>
-              <option value="ANUAL">Anual</option>
-            </select>
-            {' '}
-            <label>hasta: </label>
-            <input type="date" name="fechaFinRecurrencia" value={form.fechaFinRecurrencia} onChange={handleChange} required />
+          <div style={{ marginBottom: 8, paddingLeft: 20, borderLeft: '3px solid #eee' }}>
+            <div style={{ marginBottom: 8 }}>
+              <label>Repetir cada: </label>
+              <select name="frecuencia" value={form.frecuencia} onChange={handleChange}>
+                <option value="DIARIA">Día</option>
+                <option value="SEMANAL">Semana</option>
+                <option value="MENSUAL">Mes</option>
+                <option value="ANUAL">Año</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 8 }}>
+              <label>
+                <input
+                  type="radio"
+                  name="modoRecurrencia"
+                  value="cantidad"
+                  checked={form.modoRecurrencia === 'cantidad'}
+                  onChange={handleChange}
+                />
+                {' '}Repetir una cantidad de veces
+              </label>
+              {' '}
+              <label style={{ marginLeft: 16 }}>
+                <input
+                  type="radio"
+                  name="modoRecurrencia"
+                  value="fecha"
+                  checked={form.modoRecurrencia === 'fecha'}
+                  onChange={handleChange}
+                />
+                {' '}Repetir hasta una fecha
+              </label>
+            </div>
+
+            {form.modoRecurrencia === 'cantidad' ? (
+              <div>
+                <label>Cantidad de veces: </label>
+                <input
+                  type="number"
+                  name="cantidadRepeticiones"
+                  min="1"
+                  max="60"
+                  value={form.cantidadRepeticiones}
+                  onChange={handleChange}
+                  required
+                  style={{ width: 60 }}
+                />
+                <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>
+                  Incluye la transacción de hoy. Ej: "Mes" y "3" genera esta transacción más 2 más, una por mes.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <label>Repetir hasta el: </label>
+                <input
+                  type="date"
+                  name="fechaFinRecurrencia"
+                  value={form.fechaFinRecurrencia}
+                  onChange={handleChange}
+                  required
+                  min={form.fecha}
+                />
+                <p style={{ fontSize: 12, color: '#666', margin: '4px 0 0' }}>
+                  Se generan instancias desde hoy hasta esa fecha, según la frecuencia elegida.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        <div style={{ marginBottom: 8 }}>
+        <div style={{ marginBottom: 8, marginTop: 8 }}>
           <label>Comprobante (JPG, PNG o PDF, máx. 5MB): </label>
           <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={(e) => setArchivo(e.target.files[0])} />
         </div>

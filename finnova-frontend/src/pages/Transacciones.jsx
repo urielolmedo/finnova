@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,7 @@ export default function Transacciones() {
   const [cargando, setCargando] = useState(true);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [editando, setEditando] = useState(null);
+  const formRef = useRef(null);
 
   // Filtros
   const [filtroCategoria, setFiltroCategoria] = useState('');
@@ -58,14 +59,22 @@ export default function Transacciones() {
     cargarTransacciones();
   };
 
+  const scrollAlFormulario = () => {
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
   const editar = (t) => {
     setEditando(t);
     setMostrarForm(true);
+    scrollAlFormulario();
   };
 
   const nuevaTransaccion = () => {
     setEditando(null);
     setMostrarForm(true);
+    scrollAlFormulario();
   };
 
   const alGuardar = () => {
@@ -83,6 +92,7 @@ export default function Transacciones() {
         <h1>FinNova</h1>
         <div>
           <Link to="/perfil" style={{ marginRight: 16 }}>Mi perfil</Link>
+          <Link to="/categorias" style={{ marginRight: 16 }}>Categorías</Link>
           <button onClick={logout}>Cerrar sesión</button>
         </div>
       </div>
@@ -105,12 +115,14 @@ export default function Transacciones() {
       </button>
 
       {mostrarForm && (
-        <TransaccionForm
-          categorias={categorias}
-          transaccion={editando}
-          onGuardado={alGuardar}
-          onCancelar={() => setMostrarForm(false)}
-        />
+        <div ref={formRef}>
+          <TransaccionForm
+            categorias={categorias}
+            transaccion={editando}
+            onGuardado={alGuardar}
+            onCancelar={() => setMostrarForm(false)}
+          />
+        </div>
       )}
 
       <h3>Filtros</h3>
@@ -148,13 +160,29 @@ export default function Transacciones() {
           </thead>
           <tbody>
             {transacciones.map((t) => (
-              <tr key={t.id} style={{ borderBottom: '1px solid #eee' }}>
+              <tr
+                key={t.id}
+                style={{
+                  borderBottom: '1px solid #eee',
+                  background: editando?.id === t.id ? '#fff3cd' : 'transparent',
+                }}
+              >
                 <td style={{ padding: 8 }}>{t.fecha}{t.esRecurrente && ' 🔁'}</td>
                 <td style={{ padding: 8, color: t.tipo === 'INGRESO' ? 'green' : 'red' }}>{t.tipo}</td>
                 <td style={{ padding: 8 }}>{t.categoriaNombre}</td>
                 <td style={{ padding: 8 }}>{t.descripcion}</td>
                 <td style={{ padding: 8 }}>${t.monto.toFixed(2)}</td>
-                <td style={{ padding: 8 }}>{t.tieneComprobante ? '📎' : '—'}</td>
+                <td style={{ padding: 8 }}>
+                  {t.tieneComprobante ? (
+                    <a
+                      href={`http://localhost:8080/uploads/comprobantes/${t.comprobanteUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      📎 Ver
+                    </a>
+                  ) : '—'}
+                </td>
                 <td style={{ padding: 8 }}>
                   <button onClick={() => editar(t)}>Editar</button>{' '}
                   <button onClick={() => eliminar(t.id)}>Eliminar</button>

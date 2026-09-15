@@ -19,4 +19,6 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Long> 
 
     // Verificar que una transaccion pertenezca al usuario antes de editar/eliminar (seguridad)
     boolean existsByIdAndUsuarioId(Long id, Long usuarioId);
+
+    long countByCategoriaId(Long categoriaId);
 }

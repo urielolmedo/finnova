@@ -55,25 +55,57 @@ public class TransaccionController {
         original.setDescripcion(request.getDescripcion());
         original.setEsRecurrente(request.isEsRecurrente());
 
-        int instanciasGeneradas = 1;
+        int cantidadRepeticiones = 1;
 
         if (request.isEsRecurrente()) {
-            if (request.getFrecuencia() == null || request.getFechaFinRecurrencia() == null) {
-                return ResponseEntity.badRequest().body("Frecuencia y fecha de fin son obligatorias para una transacción recurrente");
+            if (request.getFrecuencia() == null) {
+                return ResponseEntity.badRequest().body("La frecuencia es obligatoria para una transacción recurrente");
             }
-            if (!request.getFechaFinRecurrencia().isAfter(request.getFecha())) {
-                return ResponseEntity.badRequest().body("La fecha de fin debe ser posterior a la fecha de la transacción original");
+            boolean tieneCantidad = request.getCantidadRepeticiones() != null;
+            boolean tieneFechaFin = request.getFechaFinRecurrencia() != null;
+
+            if (tieneCantidad == tieneFechaFin) {
+                // los dos cargados o los dos vacios: no sabemos cual usar
+                return ResponseEntity.badRequest().body("Indicá la cantidad de repeticiones o una fecha de fin, pero no ambas ni ninguna");
             }
+
+            if (tieneCantidad) {
+                if (request.getCantidadRepeticiones() < 1 || request.getCantidadRepeticiones() > 60) {
+                    return ResponseEntity.badRequest().body("La cantidad de repeticiones debe ser un número entre 1 y 60");
+                }
+                cantidadRepeticiones = request.getCantidadRepeticiones();
+            } else {
+                if (!request.getFechaFinRecurrencia().isAfter(request.getFecha())) {
+                    return ResponseEntity.badRequest().body("La fecha de fin debe ser posterior a la fecha de la transacción original");
+                }
+                // Convertimos la fecha de fin a cantidad de repeticiones, para generar igual en ambos modos
+                cantidadRepeticiones = 1;
+                LocalDate siguiente = original.getFecha();
+                while (true) {
+                    LocalDate candidata = calcularSiguienteFecha(siguiente, request.getFrecuencia());
+                    if (candidata.isAfter(request.getFechaFinRecurrencia())) break;
+                    siguiente = candidata;
+                    cantidadRepeticiones++;
+                }
+            }
+
             original.setFrecuencia(request.getFrecuencia());
-            original.setFechaFinRecurrencia(request.getFechaFinRecurrencia());
+
+            // Guardamos la fecha de la ultima instancia como referencia informativa, sea cual sea el modo elegido
+            LocalDate fechaUltima = original.getFecha();
+            for (int i = 1; i < cantidadRepeticiones; i++) {
+                fechaUltima = calcularSiguienteFecha(fechaUltima, request.getFrecuencia());
+            }
+            original.setFechaFinRecurrencia(fechaUltima);
         }
 
         transaccionRepository.save(original);
 
-        // CU-015: generar las instancias futuras hasta la fecha de fin, segun la frecuencia elegida
+        int instanciasGeneradas = 1;
         if (request.isEsRecurrente()) {
-            LocalDate siguiente = calcularSiguienteFecha(original.getFecha(), request.getFrecuencia());
-            while (!siguiente.isAfter(request.getFechaFinRecurrencia())) {
+            LocalDate siguiente = original.getFecha();
+            for (int i = 1; i < cantidadRepeticiones; i++) {
+                siguiente = calcularSiguienteFecha(siguiente, request.getFrecuencia());
                 Transaccion instancia = new Transaccion();
                 instancia.setUsuario(usuario);
                 instancia.setTipo(original.getTipo());
@@ -81,11 +113,10 @@ public class TransaccionController {
                 instancia.setFecha(siguiente);
                 instancia.setCategoria(categoria);
                 instancia.setDescripcion(original.getDescripcion());
-                instancia.setEsRecurrente(false); // las instancias generadas no son "originales" de otra recurrencia
+                instancia.setEsRecurrente(false);
                 instancia.setTransaccionOrigen(original);
                 transaccionRepository.save(instancia);
                 instanciasGeneradas++;
-                siguiente = calcularSiguienteFecha(siguiente, request.getFrecuencia());
             }
         }
 
