@@ -9,6 +9,8 @@ import Perfil from './pages/Perfil';
 import Transacciones from './pages/Transacciones';
 import Categorias from './pages/Categorias';
 import DatosImportExport from './pages/DatosImportExport';
+import Reportes from './pages/Reportes';
+import ReporteCompartido from './pages/ReporteCompartido';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/categorias" element={<RutaProtegida><Categorias /></RutaProtegida>} />
           <Route path="/datos" element={<RutaProtegida><DatosImportExport /></RutaProtegida>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/reportes" element={<RutaProtegida><Reportes /></RutaProtegida>} />
+          <Route path="/reporte-compartido/:token" element={<ReporteCompartido />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

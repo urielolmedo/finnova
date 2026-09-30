@@ -94,6 +94,7 @@ export default function Transacciones() {
           <Link to="/perfil" style={{ marginRight: 16 }}>Mi perfil</Link>
           <Link to="/categorias" style={{ marginRight: 16 }}>Categorías</Link>
           <Link to="/datos" style={{ marginRight: 16 }}>Exportar/Importar</Link>
+          <Link to="/reportes" style={{ marginRight: 16 }}>Reportes</Link>
           <button onClick={logout}>Cerrar sesión</button>
         </div>
       </div>
