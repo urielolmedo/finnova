@@ -95,6 +95,7 @@ export default function Transacciones() {
           <Link to="/categorias" style={{ marginRight: 16 }}>Categorías</Link>
           <Link to="/datos" style={{ marginRight: 16 }}>Exportar/Importar</Link>
           <Link to="/reportes" style={{ marginRight: 16 }}>Reportes</Link>
+          <Link to="/tipo-cambio" style={{ marginRight: 16 }}>Tipo de Cambio</Link>
           <button onClick={logout}>Cerrar sesión</button>
         </div>
       </div>

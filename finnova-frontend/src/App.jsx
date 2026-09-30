@@ -11,6 +11,7 @@ import Categorias from './pages/Categorias';
 import DatosImportExport from './pages/DatosImportExport';
 import Reportes from './pages/Reportes';
 import ReporteCompartido from './pages/ReporteCompartido';
+import TipoCambio from './pages/TipoCambio';
 
 function App() {
   return (
@@ -25,9 +26,10 @@ function App() {
           <Route path="/transacciones" element={<RutaProtegida><Transacciones /></RutaProtegida>} />
           <Route path="/categorias" element={<RutaProtegida><Categorias /></RutaProtegida>} />
           <Route path="/datos" element={<RutaProtegida><DatosImportExport /></RutaProtegida>} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/reportes" element={<RutaProtegida><Reportes /></RutaProtegida>} />
           <Route path="/reporte-compartido/:token" element={<ReporteCompartido />} />
+          <Route path="/tipo-cambio" element={<RutaProtegida><TipoCambio /></RutaProtegida>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

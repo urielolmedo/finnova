@@ -31,7 +31,6 @@ import ar.edu.usal.finnova.model.TipoCategoria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,7 +40,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/api/exportar")
