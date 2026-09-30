@@ -40,4 +40,16 @@ public class Usuario {
 
     // CU-006: modulos activos del sistema (ej: "reportes,alertas,simulaciones")
     private String modulosActivos;
+
+    @Column(nullable = false)
+    private boolean monitoreoTipoCambioActivo = false;
+
+    private java.math.BigDecimal umbralOficial;
+    private java.math.BigDecimal umbralBlue;
+
+    @Column(nullable = false)
+    private boolean umbralOficialNotificado = false;
+
+    @Column(nullable = false)
+    private boolean umbralBlueNotificado = false;
 }
