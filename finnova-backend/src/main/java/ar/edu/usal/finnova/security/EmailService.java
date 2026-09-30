@@ -29,4 +29,17 @@ public class EmailService {
         );
         mailSender.send(mensaje);
     }
+        public void enviarAlertaTipoCambio(String destinatario, String tipoCotizacion, java.math.BigDecimal valorActual, java.math.BigDecimal umbral) {
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setTo(destinatario);
+        mensaje.setSubject("FinNova - Alerta de tipo de cambio favorable");
+        mensaje.setText(
+            "El dólar " + tipoCotizacion + " bajó de tu umbral configurado.\n\n" +
+            "Cotización actual: $" + valorActual + "\n" +
+            "Tu umbral configurado: $" + umbral + "\n\n" +
+            "Esta información es orientativa y no constituye asesoramiento financiero profesional.\n\n" +
+            "Podés desactivar esta alerta o ajustar el umbral desde la configuración del módulo de tipo de cambio en FinNova."
+        );
+        mailSender.send(mensaje);
+    }
 }
