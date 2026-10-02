@@ -4,6 +4,18 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import TransaccionForm from '../components/TransaccionForm';
 
+const NOMBRES_MES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+function primerDiaDelMes(anio, mes) {
+  return new Date(anio, mes, 1).toISOString().split('T')[0];
+}
+function ultimoDiaDelMes(anio, mes) {
+  return new Date(anio, mes + 1, 0).toISOString().split('T')[0];
+}
+
 export default function Transacciones() {
   const { usuario, logout } = useAuth();
   const [transacciones, setTransacciones] = useState([]);
@@ -13,10 +25,14 @@ export default function Transacciones() {
   const [editando, setEditando] = useState(null);
   const formRef = useRef(null);
 
-  // Filtros
+  // Vista: por defecto, mes actual. "todo" = historial completo sin filtro de fecha.
+  const hoy = new Date();
+  const [anioVisible, setAnioVisible] = useState(hoy.getFullYear());
+  const [mesVisible, setMesVisible] = useState(hoy.getMonth());
+  const [modoVista, setModoVista] = useState('mes'); // 'mes' | 'todo'
+
+  // Filtro adicional por categoria (se aplica sobre la vista actual: mes o todo)
   const [filtroCategoria, setFiltroCategoria] = useState('');
-  const [filtroDesde, setFiltroDesde] = useState('');
-  const [filtroHasta, setFiltroHasta] = useState('');
 
   const cargarCategorias = async () => {
     const { data } = await api.get('/categorias');
@@ -25,12 +41,18 @@ export default function Transacciones() {
 
   const cargarTransacciones = async () => {
     setCargando(true);
-    let url = '/transacciones';
+    let url;
+
     if (filtroCategoria) {
       url = `/transacciones/filtrar/categoria/${filtroCategoria}`;
-    } else if (filtroDesde && filtroHasta) {
-      url = `/transacciones/filtrar/fecha?desde=${filtroDesde}&hasta=${filtroHasta}`;
+    } else if (modoVista === 'mes') {
+      const desde = primerDiaDelMes(anioVisible, mesVisible);
+      const hasta = ultimoDiaDelMes(anioVisible, mesVisible);
+      url = `/transacciones/filtrar/fecha?desde=${desde}&hasta=${hasta}`;
+    } else {
+      url = '/transacciones';
     }
+
     const { data } = await api.get(url);
     setTransacciones(data);
     setCargando(false);
@@ -38,19 +60,45 @@ export default function Transacciones() {
 
   useEffect(() => {
     cargarCategorias();
-    cargarTransacciones();
   }, []);
 
-  const aplicarFiltros = (e) => {
-    e.preventDefault();
+  useEffect(() => {
     cargarTransacciones();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anioVisible, mesVisible, modoVista, filtroCategoria]);
+
+  const irMesAnterior = () => {
+    setModoVista('mes');
+    setFiltroCategoria('');
+    if (mesVisible === 0) {
+      setMesVisible(11);
+      setAnioVisible((a) => a - 1);
+    } else {
+      setMesVisible((m) => m - 1);
+    }
   };
 
-  const limpiarFiltros = () => {
+  const irMesSiguiente = () => {
+    setModoVista('mes');
     setFiltroCategoria('');
-    setFiltroDesde('');
-    setFiltroHasta('');
-    setTimeout(cargarTransacciones, 0);
+    if (mesVisible === 11) {
+      setMesVisible(0);
+      setAnioVisible((a) => a + 1);
+    } else {
+      setMesVisible((m) => m + 1);
+    }
+  };
+
+  const irMesActual = () => {
+    setModoVista('mes');
+    setFiltroCategoria('');
+    setAnioVisible(hoy.getFullYear());
+    setMesVisible(hoy.getMonth());
+  };
+
+  const verTodoElHistorial = () => {
+    setModoVista('todo');
+    setFiltroCategoria('');
   };
 
   const eliminar = async (id) => {
@@ -83,8 +131,14 @@ export default function Transacciones() {
     cargarTransacciones();
   };
 
-  const totalIngresos = transacciones.filter(t => t.tipo === 'INGRESO').reduce((s, t) => s + t.monto, 0);
-  const totalEgresos = transacciones.filter(t => t.tipo === 'EGRESO').reduce((s, t) => s + t.monto, 0);
+  const totalIngresos = transacciones.filter((t) => t.tipo === 'INGRESO').reduce((s, t) => s + t.monto, 0);
+  const totalEgresos = transacciones.filter((t) => t.tipo === 'EGRESO').reduce((s, t) => s + t.monto, 0);
+
+  const tituloVista = filtroCategoria
+    ? `Filtrado por categoría`
+    : modoVista === 'mes'
+    ? `${NOMBRES_MES[mesVisible]} ${anioVisible}`
+    : 'Todo el historial';
 
   return (
     <div style={{ maxWidth: 900, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 16px' }}>
@@ -101,6 +155,25 @@ export default function Transacciones() {
       </div>
       <p>Hola, {usuario?.nombre}</p>
 
+      {/* Navegación mes a mes */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0 8px' }}>
+        <button onClick={irMesAnterior}>← Mes anterior</button>
+        <h2 style={{ margin: 0, minWidth: 220, textAlign: 'center' }}>{tituloVista}</h2>
+        <button onClick={irMesSiguiente}>Mes siguiente →</button>
+        {!(modoVista === 'mes' && anioVisible === hoy.getFullYear() && mesVisible === hoy.getMonth()) && (
+          <button onClick={irMesActual}>Ir al mes actual</button>
+        )}
+      </div>
+      <p style={{ fontSize: 13 }}>
+        {modoVista === 'mes' ? (
+          <>¿Buscás comparar varios meses o ver la tendencia en el tiempo? Eso está en <Link to="/reportes">Reportes</Link>.{' · '}</>
+        ) : null}
+        <button onClick={modoVista === 'todo' ? irMesActual : verTodoElHistorial} style={{ fontSize: 13, padding: '2px 8px' }}>
+          {modoVista === 'todo' ? 'Volver a vista mensual' : 'Ver todo el historial'}
+        </button>
+      </p>
+
+      {/* Resumen del periodo que se esta viendo (nunca "global") */}
       <div style={{ display: 'flex', gap: 24, margin: '16px 0' }}>
         <div style={{ padding: 12, background: '#e8f5e9', borderRadius: 6 }}>
           <strong>Ingresos:</strong> ${totalIngresos.toFixed(2)}
@@ -112,6 +185,9 @@ export default function Transacciones() {
           <strong>Balance:</strong> ${(totalIngresos - totalEgresos).toFixed(2)}
         </div>
       </div>
+      <p style={{ fontSize: 12, color: '#888', marginTop: -8 }}>
+        Estos totales corresponden solo a: <strong>{tituloVista}</strong>.
+      </p>
 
       <button onClick={nuevaTransaccion} style={{ padding: '8px 16px', marginBottom: 16 }}>
         + Nueva transacción
@@ -128,26 +204,28 @@ export default function Transacciones() {
         </div>
       )}
 
-      <h3>Filtros</h3>
-      <form onSubmit={aplicarFiltros} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-        <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
-          <option value="">Todas las categorías</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>{c.nombre}</option>
-          ))}
-        </select>
-        <span>o rango de fechas:</span>
-        <input type="date" value={filtroDesde} onChange={(e) => setFiltroDesde(e.target.value)} />
-        <input type="date" value={filtroHasta} onChange={(e) => setFiltroHasta(e.target.value)} />
-        <button type="submit">Filtrar</button>
-        <button type="button" onClick={limpiarFiltros}>Limpiar</button>
-      </form>
+      <h3>Filtrar por categoría</h3>
+      <select
+        value={filtroCategoria}
+        onChange={(e) => setFiltroCategoria(e.target.value)}
+        style={{ marginBottom: 16 }}
+      >
+        <option value="">Sin filtro de categoría (usar vista actual)</option>
+        {categorias.map((c) => (
+          <option key={c.id} value={c.id}>{c.nombre}</option>
+        ))}
+      </select>
+      {filtroCategoria && (
+        <p style={{ fontSize: 12, color: '#b45309' }}>
+          Nota: el filtro por categoría muestra resultados de todo el historial, no solo del mes seleccionado.
+        </p>
+      )}
 
-      <h3>Historial</h3>
+      <h3>Historial — {tituloVista}</h3>
       {cargando ? (
         <p>Cargando...</p>
       ) : transacciones.length === 0 ? (
-        <p>No hay transacciones registradas.</p>
+        <p>No hay transacciones registradas en este período.</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
